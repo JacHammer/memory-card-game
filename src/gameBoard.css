@@ -1,6 +1,22 @@
-td { display: block; float: left; border: 1px solid black; width: 32%; padding-bottom: 32%;}
+table {
+    width: 100%;
+    max-width: 800px;
+    height: 800px;
+    border: 8px solid #102730;
+    table-layout: fixed;
+    border-collapse: collapse;
 
-td div { position: absolute;}
-table { display: block; width: 100%; }
-tr { display: block; width: 100%; }
-tbody { display: block; width: 100%; }
+}
+td {
+    position: relative;
+    overflow: hidden; 
+    width: 50%;
+    border: 4px solid #426078;
+
+}
+
+.Card {
+    border: 8px solid #1a3e4d;
+    background-color: #b58126;
+    
+}

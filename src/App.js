@@ -38,11 +38,11 @@ function App() {
         setFlippedCard({...flippedCard, flippedCardFace: card.face, flippedCardIdx: card.coord.row*gridSize+card.coord.col});
         console.log('I\'m clicked');
       } else{
-        // you clicked on the same card!
+        // do nothing if clicked on the same card
         if (flippedCard.flippedCardFace === card.face && flippedCard.flippedCardIdx === card.coord.row*gridSize+card.coord.col) {
           console.log('clicked on the same card!');
   
-        // you clicked on the same face of different card
+        // clicked on the same card of different location
         } else if (flippedCard.flippedCardFace === card.face && flippedCard.flippedCardIdx !== card.coord.row*gridSize+card.coord.col) {
           console.log('you did it!');
           // set flipped cards to be permanently flipped
@@ -61,31 +61,30 @@ function App() {
           setCardStates({...cardStates, [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: !card.isFlipped}});
           // and hide both card after 200ms
           setTimeout(() => {
-            // 
             setCardStates({...cardStates, 
                            [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: false},
                            [`Card${flippedCard.flippedCardIdx}`]: {...cardStates[`Card${flippedCard.flippedCardIdx}`], isFlipped: false}
                           });
             // reset flipped card
             setFlippedCard({...flippedCard, flippedCardFace: undefined, flippedCardIdx: undefined});
-
           }, 200);
         }
       }
     };
     }
 
-  
   // create a single game card
   const createGameCard = (card) =>(
     <Card face={card.face} coord={card.coord} isFlipped={card.isFlipped} isPermanentlyFlipped={card.isPermanentlyFlipped} onClick={handleCardClick}/> 
   );
 
+  // create jsx object for each card
   const renderTableCols =(cards)=> {
-    return Object.values(cards).map((item, idx) => <th>{createGameCard(item)}</th>)
+    return Object.values(cards).map((item, idx) => <td key={idx}>{createGameCard(item)}</td>)
   }
 
   const content = renderTableCols(cardStates);
+  
   const renderTable =()=> {
     return (
       <table>
