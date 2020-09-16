@@ -1,0 +1,6 @@
+td { display: block; float: left; border: 1px solid black; width: 32%; padding-bottom: 32%;}
+
+td div { position: absolute;}
+table { display: block; width: 100%; }
+tr { display: block; width: 100%; }
+tbody { display: block; width: 100%; }

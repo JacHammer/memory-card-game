@@ -1,5 +1,6 @@
 {
   "name": "memory_card_game",
+  "homepage": "card",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
