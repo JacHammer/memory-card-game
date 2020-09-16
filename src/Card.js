@@ -19,7 +19,7 @@ function Card(props) {
             } 
           style={{fontSize: '10vw',  alignSelf: 'stretch', textAlign: 'center'}}
         >
-            {props.isFlipped ? unflippedFace : props.face}
+            {props.isFlipped ? props.face : unflippedFace}
         
         
         </p>

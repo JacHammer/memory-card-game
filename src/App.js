@@ -9,32 +9,72 @@ function App() {
 
   // the default state when the game is initialized
   let defaultCardState = {};
-
+  let emojis = ['🤔', '😆', '😎', '😂','🤯', '😘','😉', '🤣'];
+  emojis.push(...emojis);
   for (let row = 0; row < gridSize ; row++) {
     for (let col = 0; col < gridSize; col++) {
-      defaultCardState[`Card${gridSize * row + col}`] = { face: '🤔', coord: {row: row, col: col}, cardIdx: gridSize * row + col, isFlipped: false, isPermanentlyFlipped: false};
+      defaultCardState[`Card${gridSize * row + col}`] = { face: emojis[gridSize * row + col], coord: {row: row, col: col}, cardIdx: gridSize * row + col, isFlipped: false, isPermanentlyFlipped: false};
     }
   };
-  console.log(defaultCardState);
   // card's location, isFlipped, isPermanentlyFlipped, ...
   const [cardStates, setCardStates] = useState(defaultCardState);
   // scoreboard
   const [score, setScore] = useState({currentScore: 0, maxScore: 0, timeElaped: 0});
   // store current flipped card face
-  const [flippedCard, setFlippedCard] = useState({flippedCardFace: null});
+  const [flippedCard, setFlippedCard] = useState({flippedCardFace: undefined, flippedCardIdx: undefined});
+  
+  const flipCard =(card)=> {
+    //setstate
+    //sleep
+    //setstate
+  }
 
   const handleCardClick = (card) =>{
-    
-    console.log('I\'m clicked');
-    console.log(card);
-    
-    if (flippedCard.flippedCardFace == null){
-      setCardStates({...cardStates, [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: !card.isFlipped}});
-      setFlippedCard({flippedCard: `Card${card.coord.row*gridSize+card.coord.col}`});
-    } else{
-      
+    // if the card we clicked is permanently flipped, then we do nothing
+    if (card.isPermanentlyFlipped === false){
+       // if we dont have any non-permanent card flipped, set the clicked card to flipped
+      if (flippedCard.flippedCardFace === undefined){
+        setCardStates({...cardStates, [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: !card.isFlipped}});
+        setFlippedCard({...flippedCard, flippedCardFace: card.face, flippedCardIdx: card.coord.row*gridSize+card.coord.col});
+        console.log('I\'m clicked');
+      } else{
+        // you clicked on the same card!
+        if (flippedCard.flippedCardFace === card.face && flippedCard.flippedCardIdx === card.coord.row*gridSize+card.coord.col) {
+          console.log('clicked on the same card!');
+  
+        // you clicked on the same face of different card
+        } else if (flippedCard.flippedCardFace === card.face && flippedCard.flippedCardIdx !== card.coord.row*gridSize+card.coord.col) {
+          console.log('you did it!');
+          // set flipped cards to be permanently flipped
+          setCardStates({...cardStates, 
+                        [`Card${flippedCard.flippedCardIdx}`]: {...cardStates[`Card${flippedCard.flippedCardIdx}`], isPermanentlyFlipped: true},
+                        [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: true, isPermanentlyFlipped: true},
+                          });
+          // reset temp flipped card
+          setFlippedCard({...flippedCard, flippedCardFace: undefined, flippedCardIdx: undefined});
+  
+        // wrong card
+        // let the players to have a look at the card they flipped, and hide both cards
+        } else if (flippedCard.flippedCardFace !== card.face && flippedCard.flippedCardIdx !== card.coord.row*gridSize+card.coord.col) {
+          console.log(`${flippedCard.flippedCardFace} and ${card.face}???`);
+          // show the card the player flipped...
+          setCardStates({...cardStates, [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: !card.isFlipped}});
+          // and hide both card after 200ms
+          setTimeout(() => {
+            // 
+            setCardStates({...cardStates, 
+                           [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: false},
+                           [`Card${flippedCard.flippedCardIdx}`]: {...cardStates[`Card${flippedCard.flippedCardIdx}`], isFlipped: false}
+                          });
+            // reset flipped card
+            setFlippedCard({...flippedCard, flippedCardFace: undefined, flippedCardIdx: undefined});
+
+          }, 200);
+        }
+      }
+    };
     }
-  };
+
   
   // create a single game card
   const createGameCard = (card) =>(
@@ -61,7 +101,6 @@ function App() {
   }
 
   let myTable = renderTable();
-  console.log(myTable);
   return (
     <div className="App">{myTable}</div>
   );
