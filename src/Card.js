@@ -1,4 +1,4 @@
-import React  from 'react';
+import React from 'react';
 import './App.css';
 
 const unflippedFace = '❔';
@@ -16,7 +16,7 @@ function Card(props) {
                               )}
       } >
         <p 
-          style={{fontSize: '4em',  alignSelf: 'stretch', textAlign: 'center'}}
+          style={{fontSize: '4em', textAlign: 'center'}}
         >
           {props.isFlipped ? props.face : unflippedFace}
         </p>

@@ -1,10 +1,12 @@
 table {
+    position: relative;
     width: 100%;
     max-width: 800px;
-    height: 800px;
+    max-height: 800px;
     border: 8px solid #102730;
     table-layout: fixed;
     border-collapse: collapse;
+    overflow: auto;
 
 }
 td {
@@ -16,7 +18,10 @@ td {
 }
 
 .Card {
+    position: relative;
     border: 8px solid #1a3e4d;
     background-color: #b58126;
+    max-height:200px;
+    overflow:hidden;
     
 }
