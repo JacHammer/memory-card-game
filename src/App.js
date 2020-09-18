@@ -80,7 +80,24 @@ function App() {
     }, 200);
   };
 
-  const handleCardClick = (card) =>{
+  // handle different situations of card states
+  const handleCardClick = (card) => {
+    setTryCount(tryCount+1);
+    console.log(`you tried ${tryCount} time(s)`);
+    if (card.isPermanentlyFlipped) {
+      console.log('You clicked the same card!');
+      return; // avoid extra if-statement checks
+    } else if (flippedCard.flippedCardFace === undefined) {
+      flipCurrentCard(card);
+    } else if (flippedCard.flippedCardFace === card.face && flippedCard.flippedCardIdx !== card.coord.row*gridSize+card.coord.col) {
+      handleSameCards(card);
+    } else {
+      handleDifferentCards(card);
+    }
+  };
+
+  // same functionalities as handleCardClick() but with ternary operators
+  const ternaryHandleCardClick = (card) =>{
     setTryCount(tryCount+1);
     console.log(`you tried ${tryCount} time(s)`);
     // who needs if if you can do this🤯
@@ -124,7 +141,7 @@ function App() {
   return (
     <div className="App">
       <div >
-        <h1>Keep flipping cards until every pair of cards are found!<br/> You clicked {tryCount} times</h1>
+        <h1>Keep flipping cards until every pair of cards is found!<br/> You clicked {tryCount} times</h1>
       </div>
       <div className="table-div">{renderTable()}</div>
     </div>
