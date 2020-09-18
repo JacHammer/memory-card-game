@@ -2,7 +2,7 @@
 /* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
 /* eslint-disable valid-jsdoc */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Card from './Card';
 import './App.css';
 import './gameBoard.css';
@@ -20,38 +20,53 @@ function shuffle(a) {
 }
 
 function App() {
-  // size of the grid, must be an even number greater than 2
-  const [gridSize] = useState(4);
-
-  // the default state when the game is initialized
-  const defaultCardState = {};
-  const testEmojiArray = [];
-
-  // generate random cards
-  const emojiRange = [128513, 128591];
-  for (let x = emojiRange[0]; x< emojiRange[1]; x++) {
-    testEmojiArray.push(String.fromCodePoint(parseInt(x, 10)));
-  };
-  let emojis = testEmojiArray.slice(0, gridSize*2);
-  emojis.push(...emojis);
-  emojis = shuffle(emojis);
-  for (let row = 0; row < gridSize; row++) {
-    for (let col = 0; col < gridSize; col++) {
-      defaultCardState[`Card${gridSize * row + col}`] = {face: emojis[gridSize * row + col], coord: {row: row, col: col}, cardIdx: gridSize * row + col, isFlipped: false, isPermanentlyFlipped: false};
-    }
-  };
+  // size of the grid, can be user-defined but keep it for now
+  const [gridWidth, setGridWidth] = useState(6);
+  const [gridHeight, setGridHeight] = useState(3);
 
   // cards' state
-  const [cardStates, setCardStates] = useState(defaultCardState);
+  const [cardStates, setCardStates] = useState({});
   // scoreboard
   const [tryCount, setTryCount] = useState(0);
   // store current flipped card face
   const [flippedCard, setFlippedCard] = useState({flippedCardFace: undefined, flippedCardIdx: undefined});
 
+  const incrementWidth = () => {
+    setGridWidth(gridWidth + 2);
+  };
+  const incrementHeight = () => {
+    setGridHeight(gridHeight + 2);
+  };
+
+  // reshuffle and reset all cards
+  const reshuffleEmojis = (width, height) => {
+    const testEmojiArray = [];
+    const emojiRange = [128513, 128591];
+    for (let x = emojiRange[0]; x< emojiRange[1]; x++) {
+      testEmojiArray.push(String.fromCodePoint(parseInt(x, 10)));
+    };
+    let emojis = testEmojiArray.slice(0, (width * height)/2);
+    emojis.push(...emojis);
+    emojis = shuffle(emojis);
+    return emojis;
+  };
+
+  // reset grid to specified width and height
+  const resetCardsStates = (width, height) => {
+    const emojis = reshuffleEmojis(width, height);
+    const defaultCardState = {};
+    for (let row = 0; row < height; row++) {
+      for (let col = 0; col < width; col++) {
+        defaultCardState[`Card${width * row + col}`] = {face: emojis[width * row + col], coord: {row: row, col: col}, cardIdx: width * row + col, isFlipped: false, isPermanentlyFlipped: false};
+      }
+    };
+    setCardStates({...cardStates, ...defaultCardState});
+  };
+
   // set current state of the card to flipped and set flipped card state to this card
   const flipCurrentCard = (card) => {
-    setCardStates({...cardStates, [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: !card.isFlipped}});
-    setFlippedCard({...flippedCard, flippedCardFace: card.face, flippedCardIdx: card.coord.row*gridSize+card.coord.col});
+    setCardStates({...cardStates, [`Card${card.coord.row*gridWidth+card.coord.col}`]: {...card, isFlipped: !card.isFlipped}});
+    setFlippedCard({...flippedCard, flippedCardFace: card.face, flippedCardIdx: card.coord.row*gridWidth+card.coord.col});
   };
 
   // set both cards as permanently flipped and clear flipped card state if two same cards are flipped
@@ -59,7 +74,7 @@ function App() {
     // set flipped cards to be permanently flipped
     setCardStates({...cardStates,
       [`Card${flippedCard.flippedCardIdx}`]: {...cardStates[`Card${flippedCard.flippedCardIdx}`], isPermanentlyFlipped: true},
-      [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: true, isPermanentlyFlipped: true},
+      [`Card${card.coord.row*gridWidth+card.coord.col}`]: {...card, isFlipped: true, isPermanentlyFlipped: true},
     });
     // reset flipped card
     setFlippedCard({...flippedCard, flippedCardFace: undefined, flippedCardIdx: undefined});
@@ -68,11 +83,11 @@ function App() {
   // reset both cards if they are not the same
   const handleDifferentCards = (card) => {
     // show the card the player flipped...
-    setCardStates({...cardStates, [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: !card.isFlipped}});
+    setCardStates({...cardStates, [`Card${card.coord.row*gridWidth+card.coord.col}`]: {...card, isFlipped: !card.isFlipped}});
     // and hide both card after 200ms
     setTimeout(() => {
       setCardStates({...cardStates,
-        [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: false},
+        [`Card${card.coord.row*gridWidth+card.coord.col}`]: {...card, isFlipped: false},
         [`Card${flippedCard.flippedCardIdx}`]: {...cardStates[`Card${flippedCard.flippedCardIdx}`], isFlipped: false},
       });
       // reset flipped card
@@ -89,7 +104,7 @@ function App() {
       return; // avoid extra if-statement checks
     } else if (flippedCard.flippedCardFace === undefined) {
       flipCurrentCard(card);
-    } else if (flippedCard.flippedCardFace === card.face && flippedCard.flippedCardIdx !== card.coord.row*gridSize+card.coord.col) {
+    } else if (flippedCard.flippedCardFace === card.face && flippedCard.flippedCardIdx !== card.coord.row*gridWidth+card.coord.col) {
       handleSameCards(card);
     } else {
       handleDifferentCards(card);
@@ -104,7 +119,7 @@ function App() {
     card.isPermanentlyFlipped? console.log('You clicked the same card!') :
     flippedCard.flippedCardFace === undefined? flipCurrentCard(card) :
     flippedCard.flippedCardFace === card.face &&
-    flippedCard.flippedCardIdx !== card.coord.row*gridSize+card.coord.col? handleSameCards(card) :
+    flippedCard.flippedCardIdx !== card.coord.row*gridWidth+card.coord.col? handleSameCards(card) :
     handleDifferentCards(card);
   };
 
@@ -124,26 +139,40 @@ function App() {
     return Object.values(cards).map((item, idx) => <td key={idx}>{createGameCard(item)}</td>);
   };
 
-  const renderTable = () => {
+  // create a jsx object for the grid
+  const constructTable = (width, height) => {
+    const widthArray = Array.from(Array(width).keys());
+    const heightArray = Array.from(Array(height).keys());
     const content = renderTableCols(cardStates);
     return (
       <table>
         <tbody>
-          <tr>{content.slice(0, 4)}</tr>
-          <tr>{content.slice(4, 8)}</tr>
-          <tr>{content.slice(8, 12)}</tr>
-          <tr>{content.slice(12, 16)}</tr>
+          {heightArray.map((idx, i) => (<tr key={idx}>{widthArray.map((idx, j)=> content[i*width+j])}</tr>))}
         </tbody>
-      </table>
-    );
+      </table>);
   };
+
+  // first render will generate a new grid
+  useEffect(() => {
+    resetCardsStates(gridWidth, gridHeight);
+  }, []);
+
+  // update grid once width and height are changed by the user
+  useEffect(() => {
+    resetCardsStates(gridWidth, gridHeight);
+    constructTable(gridWidth, gridHeight);
+    setTryCount(0);
+  }, [gridWidth, gridHeight]);
 
   return (
     <div className="App">
       <div >
+        <button onClick={incrementWidth}> Add Width </button>
+        <button onClick={incrementHeight}> Add Height </button>
+        <button onClick={()=>setTryCount(0)}> Reset </button>
         <h1>Keep flipping cards until every pair of cards is found!<br/> You clicked {tryCount} times</h1>
       </div>
-      <div className="table-div">{renderTable()}</div>
+      <div className="table-div">{constructTable(gridWidth, gridHeight)}</div>
     </div>
 
   );
