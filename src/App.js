@@ -46,7 +46,8 @@ function App() {
     setFlippedCard({
       ...flippedCard,
       face: undefined,
-      idx: undefined});
+      idx: undefined,
+    });
   };
 
   // reshuffle and reset all cards
@@ -116,7 +117,8 @@ function App() {
       ...cardStates,
       [`Card${flippedCard.idx}`]: {...cardStates[`Card${flippedCard.idx}`],
         isPermanentlyFlipped: true},
-      [`Card${card.coord.row*gridWidth+card.coord.col}`]: {...card,
+      [`Card${card.coord.row*gridWidth+card.coord.col}`]: {
+        ...card,
         isFlipped: true,
         isPermanentlyFlipped: true,
       },
@@ -267,7 +269,6 @@ function App() {
       </div>
       <div className="table-div">{constructTable(gridWidth, gridHeight)}</div>
     </div>
-
   );
 }
 
