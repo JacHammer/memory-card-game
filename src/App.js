@@ -90,6 +90,7 @@ function App() {
     flippedCard.flippedCardIdx !== card.coord.row*gridSize+card.coord.col? handleSameCards(card) :
     handleDifferentCards(card);
   };
+
   // create a single game card
   const createGameCard = (card) =>(
     <Card
@@ -106,9 +107,8 @@ function App() {
     return Object.values(cards).map((item, idx) => <td key={idx}>{createGameCard(item)}</td>);
   };
 
-  const content = renderTableCols(cardStates);
-
   const renderTable = () => {
+    const content = renderTableCols(cardStates);
     return (
       <table>
         <tbody>
@@ -124,7 +124,7 @@ function App() {
   return (
     <div className="App">
       <div >
-        <h>Keep flipping cards until every pair of cards are found!<br/> You clicked {tryCount} times</h>
+        <h1>Keep flipping cards until every pair of cards are found!<br/> You clicked {tryCount} times</h1>
       </div>
       <div className="table-div">{renderTable()}</div>
     </div>
