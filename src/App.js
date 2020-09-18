@@ -33,16 +33,18 @@ function App() {
 
   const incrementWidth = () => {
     setGridWidth(gridWidth + 2);
+    setFlippedCard({...flippedCard, flippedCardFace: undefined, flippedCardIdx: undefined});
   };
   const incrementHeight = () => {
     setGridHeight(gridHeight + 2);
+    setFlippedCard({...flippedCard, flippedCardFace: undefined, flippedCardIdx: undefined});
   };
 
   // reshuffle and reset all cards
   const reshuffleEmojis = (width, height) => {
     const testEmojiArray = [];
     const emojiRange = [128513, 128591];
-    for (let x = emojiRange[0]; x< emojiRange[1]; x++) {
+    for (let x = emojiRange[0]; x < emojiRange[1]; x++) {
       testEmojiArray.push(String.fromCodePoint(parseInt(x, 10)));
     };
     let emojis = testEmojiArray.slice(0, (width * height)/2);
@@ -52,7 +54,7 @@ function App() {
   };
 
   // reset grid to specified width and height
-  const resetCardsStates = (width, height) => {
+  const resetCardsStates = (isStartOver, width, height) => {
     const emojis = reshuffleEmojis(width, height);
     const defaultCardState = {};
     for (let row = 0; row < height; row++) {
@@ -60,7 +62,8 @@ function App() {
         defaultCardState[`Card${width * row + col}`] = {face: emojis[width * row + col], coord: {row: row, col: col}, cardIdx: width * row + col, isFlipped: false, isPermanentlyFlipped: false};
       }
     };
-    setCardStates({...cardStates, ...defaultCardState});
+    setFlippedCard({...flippedCard, flippedCardFace: undefined, flippedCardIdx: undefined});
+   isStartOver? setCardStates({...defaultCardState}) : setCardStates({...cardStates, ...defaultCardState});
   };
 
   // set current state of the card to flipped and set flipped card state to this card
@@ -152,15 +155,21 @@ function App() {
       </table>);
   };
 
+  const startOver = () => {
+    setGridWidth(6);
+    setGridHeight(3);
+    resetCardsStates(true, 6, 3);
+    setTryCount(0);
+  };
+
   // first render will generate a new grid
   useEffect(() => {
-    resetCardsStates(gridWidth, gridHeight);
+    resetCardsStates(false, gridWidth, gridHeight);
   }, []);
 
   // update grid once width and height are changed by the user
   useEffect(() => {
-    resetCardsStates(gridWidth, gridHeight);
-    constructTable(gridWidth, gridHeight);
+    resetCardsStates(false, gridWidth, gridHeight);
     setTryCount(0);
   }, [gridWidth, gridHeight]);
 
@@ -169,7 +178,8 @@ function App() {
       <div >
         <button onClick={incrementWidth}> Add Width </button>
         <button onClick={incrementHeight}> Add Height </button>
-        <button onClick={()=>setTryCount(0)}> Reset </button>
+        <button
+          onClick={startOver}> Reset </button>
         <h1>Keep flipping cards until every pair of cards is found!<br/> You clicked {tryCount} times</h1>
       </div>
       <div className="table-div">{constructTable(gridWidth, gridHeight)}</div>
