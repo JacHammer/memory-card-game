@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
 /* eslint-disable valid-jsdoc */
@@ -47,55 +48,55 @@ function App() {
   // store current flipped card face
   const [flippedCard, setFlippedCard] = useState({flippedCardFace: undefined, flippedCardIdx: undefined});
 
-  const handleCardClick = (card) =>{
-    setTryCount(tryCount+1);
-    console.log(`you tried ${tryCount} time(s)`);
+  // set current state of the card to flipped and set flipped card state to this card
+  const flipCurrentCard = (card) => {
+    setCardStates({...cardStates, [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: !card.isFlipped}});
+    setFlippedCard({...flippedCard, flippedCardFace: card.face, flippedCardIdx: card.coord.row*gridSize+card.coord.col});
+  };
 
-    // if the card we clicked is permanently flipped, then we do nothing
-    if (card.isPermanentlyFlipped) {
-      return;
-    }
+  // set both cards as permanently flipped and clear flipped card state if two same cards are flipped
+  const handleSameCards = (card) => {
+    // set flipped cards to be permanently flipped
+    setCardStates({...cardStates,
+      [`Card${flippedCard.flippedCardIdx}`]: {...cardStates[`Card${flippedCard.flippedCardIdx}`], isPermanentlyFlipped: true},
+      [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: true, isPermanentlyFlipped: true},
+    });
+    // reset flipped card
+    setFlippedCard({...flippedCard, flippedCardFace: undefined, flippedCardIdx: undefined});
+  };
 
-    // if we dont have any non-permanent card flipped, set the clicked card to flipped
-    else if (flippedCard.flippedCardFace === undefined) {
-      setCardStates({...cardStates, [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: !card.isFlipped}});
-      setFlippedCard({...flippedCard, flippedCardFace: card.face, flippedCardIdx: card.coord.row*gridSize+card.coord.col});
-    }
-
-    // two same cards are flipped
-    else if (flippedCard.flippedCardFace === card.face && flippedCard.flippedCardIdx !== card.coord.row*gridSize+card.coord.col) {
-      // set flipped cards to be permanently flipped
+  // reset both cards if they are not the same
+  const handleDifferentCards = (card) => {
+    // show the card the player flipped...
+    setCardStates({...cardStates, [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: !card.isFlipped}});
+    // and hide both card after 200ms
+    setTimeout(() => {
       setCardStates({...cardStates,
-        [`Card${flippedCard.flippedCardIdx}`]: {...cardStates[`Card${flippedCard.flippedCardIdx}`], isPermanentlyFlipped: true},
-        [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: true, isPermanentlyFlipped: true},
+        [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: false},
+        [`Card${flippedCard.flippedCardIdx}`]: {...cardStates[`Card${flippedCard.flippedCardIdx}`], isFlipped: false},
       });
       // reset flipped card
       setFlippedCard({...flippedCard, flippedCardFace: undefined, flippedCardIdx: undefined});
-
-      // wrong card
-      // let the players to have a look at the card they flipped, and hide both cards
-    } else {
-      // show the card the player flipped...
-      setCardStates({...cardStates, [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: !card.isFlipped}});
-      // and hide both card after 200ms
-      setTimeout(() => {
-        setCardStates({...cardStates,
-          [`Card${card.coord.row*gridSize+card.coord.col}`]: {...card, isFlipped: false},
-          [`Card${flippedCard.flippedCardIdx}`]: {...cardStates[`Card${flippedCard.flippedCardIdx}`], isFlipped: false},
-        });
-        // reset flipped card
-        setFlippedCard({...flippedCard, flippedCardFace: undefined, flippedCardIdx: undefined});
-      }, 200);
-    };
+    }, 200);
   };
 
+  const handleCardClick = (card) =>{
+    setTryCount(tryCount+1);
+    console.log(`you tried ${tryCount} time(s)`);
+    // who needs if if you can do this🤯
+    card.isPermanentlyFlipped? console.log('You clicked the same card!') :
+    flippedCard.flippedCardFace === undefined? flipCurrentCard(card) :
+    flippedCard.flippedCardFace === card.face &&
+    flippedCard.flippedCardIdx !== card.coord.row*gridSize+card.coord.col? handleSameCards(card) :
+    handleDifferentCards(card);
+  };
   // create a single game card
   const createGameCard = (card) =>(
-    <Card 
-      face={card.face} 
-      coord={card.coord} 
-      isFlipped={card.isFlipped} 
-      isPermanentlyFlipped={card.isPermanentlyFlipped} 
+    <Card
+      face={card.face}
+      coord={card.coord}
+      isFlipped={card.isFlipped}
+      isPermanentlyFlipped={card.isPermanentlyFlipped}
       onClick={handleCardClick}
     />
   );
