@@ -1,6 +1,7 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable valid-jsdoc */
 import React, {useEffect, useState} from 'react';
+import Button from '@material-ui/core/Button';
 import Card from './Card';
 import './App.css';
 import './gameBoard.css';
@@ -19,8 +20,8 @@ function shuffle(a) {
 
 function App() {
   // size of the grid, can be user-defined but keep it for now
-  const [gridWidth, setGridWidth] = useState(6);
-  const [gridHeight, setGridHeight] = useState(3);
+  const [gridWidth, setGridWidth] = useState(4);
+  const [gridHeight, setGridHeight] = useState(4);
 
   // cards' state
   const [cardStates, setCardStates] = useState({});
@@ -32,8 +33,9 @@ function App() {
     idx: undefined,
   });
 
+  const [score, setScore] = useState(0);
   const incrementWidth = () => {
-    setGridWidth(gridWidth + 2);
+    gridWidth >= 8? setGridWidth(gridWidth) : setGridWidth(gridWidth + 1);
     setFlippedCard({
       ...flippedCard,
       face: undefined,
@@ -41,14 +43,6 @@ function App() {
     });
   };
 
-  const incrementHeight = () => {
-    setGridHeight(gridHeight + 2);
-    setFlippedCard({
-      ...flippedCard,
-      face: undefined,
-      idx: undefined,
-    });
-  };
 
   // reshuffle and reset all cards
   const reshuffleEmojis = (width, height) => {
@@ -63,11 +57,23 @@ function App() {
     return emojis;
   };
 
+  // reveal all cards for a period of time
   const revealAllCards = () => {
-    // TODO: set all card's isFlipped and isPermanentlyFlipped to true
-    // TODO: wait some time
-    // TODO: set all card's isFlipped and isPermanentlyFlipped to false
-    console.log('imma show all cards!');
+    const tempCardStates = {...cardStates};
+    for (const cardStateKey of Object.keys(tempCardStates)) {
+      tempCardStates[cardStateKey].isPermanentlyFlipped = true;
+      tempCardStates[cardStateKey].isFlipped = true;
+    }
+    setCardStates({...tempCardStates});
+
+    setTimeout(() => {
+      const tempCardStates = {...cardStates};
+      for (const cardStateKey of Object.keys(tempCardStates)) {
+        tempCardStates[cardStateKey].isPermanentlyFlipped = false;
+        tempCardStates[cardStateKey].isFlipped = false;
+      }
+      setCardStates({...tempCardStates});
+    }, 2000);
   };
 
   // reset grid to specified width and height
@@ -92,6 +98,7 @@ function App() {
     });
     isStartOver? setCardStates({...defaultCardState}) :
                  setCardStates({...cardStates, ...defaultCardState});
+    setScore(0);
   };
 
   // set current state of the card to flipped
@@ -129,6 +136,7 @@ function App() {
       face: undefined,
       idx: undefined,
     });
+    setScore(score + 1);
   };
 
   // reset both cards if they are not the same
@@ -236,15 +244,14 @@ function App() {
   };
 
   const startOver = () => {
-    setGridWidth(6);
-    setGridHeight(3);
-    resetCardsStates(true, 6, 3);
+    setGridWidth(4);
+    setGridHeight(4);
+    resetCardsStates(true, 4, 4);
     setTryCount(0);
   };
 
   // first render will generate a new grid
   useEffect(() => {
-    revealAllCards();
     resetCardsStates(false, gridWidth, gridHeight);
   }, []);
 
@@ -257,15 +264,16 @@ function App() {
   return (
     <div className="App">
       <div >
-        <button onClick={incrementWidth}> Add Width </button>
-        <button onClick={incrementHeight}> Add Height </button>
-        <button
-          onClick={startOver}> Reset </button>
-        <h1>
+        <Button color="primary" onClick={incrementWidth}> Make it harder! </Button>
+        <Button
+          color="primary"
+          onClick={startOver}> Reset </Button>
+        <Button color="primary" onClick={revealAllCards}> Reveal! </Button>
+        <h3>
           Keep flipping cards until every pair of cards is found!
           <br/>
-          You clicked {tryCount} times
-        </h1>
+          {score == gridWidth*gridHeight/2? 'You won!' : `Score: ${score}`}
+        </h3>
       </div>
       <div className="table-div">{constructTable(gridWidth, gridHeight)}</div>
     </div>
