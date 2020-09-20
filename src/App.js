@@ -264,11 +264,21 @@ function App() {
   return (
     <div className="App">
       <div >
-        <Button color="primary" onClick={incrementWidth}> Make it harder! </Button>
         <Button
           color="primary"
-          onClick={startOver}> Reset </Button>
-        <Button color="primary" onClick={revealAllCards}> Reveal! </Button>
+          onClick={incrementWidth}>
+          Make it harder!
+        </Button>
+        <Button
+          color="primary"
+          onClick={startOver}>
+            Reset
+        </Button>
+        <Button
+          color="primary"
+          onClick={revealAllCards}>
+          Reveal!
+        </Button>
         <h3>
           Keep flipping cards until every pair of cards is found!
           <br/>
