@@ -2,21 +2,10 @@
 /* eslint-disable valid-jsdoc */
 import React, {useEffect, useState} from 'react';
 import Button from '@material-ui/core/Button';
-import Card from './Card';
+import Card from './components/Card';
 import './App.css';
 import './gameBoard.css';
-
-/**
- * Shuffles array in place. ES6 version
- * @param {Array} a items An array containing the items.
- */
-function shuffle(a) {
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+import reshuffleEmojis from './utils/ShuffleEmoji.js';
 
 function App() {
   // size of the grid, can be user-defined but keep it for now
@@ -27,13 +16,13 @@ function App() {
   const [cardStates, setCardStates] = useState({});
   // scoreboard
   const [tryCount, setTryCount] = useState(0);
+  const [score, setScore] = useState(0);
   // store current flipped card face
   const [flippedCard, setFlippedCard] = useState({
     face: undefined,
     idx: undefined,
   });
 
-  const [score, setScore] = useState(0);
   const incrementWidth = () => {
     gridWidth >= 8? setGridWidth(gridWidth) : setGridWidth(gridWidth + 1);
     setFlippedCard({
@@ -41,20 +30,6 @@ function App() {
       face: undefined,
       idx: undefined,
     });
-  };
-
-
-  // reshuffle and reset all cards
-  const reshuffleEmojis = (width, height) => {
-    const testEmojiArray = [];
-    const emojiRange = [128513, 128591];
-    for (let x = emojiRange[0]; x < emojiRange[1]; x++) {
-      testEmojiArray.push(String.fromCodePoint(parseInt(x, 10)));
-    };
-    let emojis = testEmojiArray.slice(0, (width * height)/2);
-    emojis.push(...emojis);
-    emojis = shuffle(emojis);
-    return emojis;
   };
 
   // reveal all cards for a period of time
